@@ -29,7 +29,7 @@ trait PlayQA
 
             $selectedOption = $this->chooseQuestion($questions);
             $question = $questions->firstWhere('selection', '=', $selectedOption);
-            $answers = $this->remapAnswersKeys($answerService->getAnswers($question['id']));
+            $answers = $this->remapAnswersKeys($answerService->getAnswersByQuestionId($question['id']));
             $this->table([__('qa.option'), __('qa.answer')], $answers->map->only(['selection', 'option'])->toArray());
             $selectedAnswer = $this->selectAnswer($answers);
 

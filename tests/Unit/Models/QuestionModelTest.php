@@ -16,7 +16,7 @@ class QuestionModelTest extends TestCase
 
     public function testCreateQuestionSucceeds()
     {
-        $text = TestHelper::question();
+        $text = TestHelper::text();
         $locale = TestHelper::locale();
 
         $question = new Question();

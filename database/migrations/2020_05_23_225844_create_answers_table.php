@@ -18,7 +18,7 @@ class CreateAnswersTable extends Migration
             $table->unsignedInteger('question_id');
             $table->string('option');
             $table->boolean('correct')->default(false);
-            $table->string('locale');
+            $table->string('locale', 10);
             $table->softDeletes();
             $table->timestamps();
 

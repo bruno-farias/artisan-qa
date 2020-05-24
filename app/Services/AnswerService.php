@@ -10,17 +10,20 @@ use Illuminate\Support\Collection;
 
 class AnswerService
 {
-    public function insert(string $text, bool $correct, string $locale, Question $question): void
+    public function insert(string $text, bool $correct, string $locale, Question $question): Answer
     {
-        (new Answer())
+        $answer = new Answer();
+        $answer
             ->setOption($text)
             ->setCorrect($correct)
             ->setLocale($locale)
             ->question()->associate($question)
             ->save();
+
+        return $answer;
     }
 
-    public function getAnswers(int $id): Collection
+    public function getAnswersByQuestionId(int $id): Collection
     {
         return Answer::where('question_id', '=', $id)
             ->inRandomOrder()

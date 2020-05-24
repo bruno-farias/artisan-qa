@@ -21,7 +21,12 @@ class Answer extends Model
         'correct' => 'boolean'
     ];
 
-    // Setters
+    // Getters/Setters
+
+    public function getOption(): string
+    {
+        return $this->option;
+    }
 
     public function setOption(string $option)
     {
@@ -35,10 +40,25 @@ class Answer extends Model
         return $this;
     }
 
+    public function getCorrect(): bool
+    {
+        return $this->correct;
+    }
+
+    public function getLocale(): string
+    {
+        return $this->locale;
+    }
+
     // Relationships
 
     public function question()
     {
         return $this->belongsTo(Question::class);
+    }
+
+    public function getQuestion(): Question
+    {
+        return $this->question;
     }
 }

@@ -21,6 +21,6 @@ class QuestionService
 
     public function selectBatch(int $limit = 5): Collection
     {
-        return Question::all(['id', 'question'])->random($limit);
+        return Question::all(['id', 'question', 'locale'])->random($limit);
     }
 }
