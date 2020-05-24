@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Traits;
 
 
 use Illuminate\Support\Facades\App;

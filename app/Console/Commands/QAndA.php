@@ -3,16 +3,17 @@
 namespace App\Console\Commands;
 
 
-use App\Models\Question;
+use App\Console\Commands\Traits\AskQuestion;
+use App\Console\Commands\Traits\PlayQA;
 use App\Services\AnswerService;
 use App\Services\Clients\OpenTriviaDBClient;
 use App\Services\QuestionService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 class QAndA extends Command
 {
-    use InputValidation;
+    use AskQuestion;
+    use PlayQA;
 
     protected $signature = 'qanda:interactive';
     protected $description = 'Runs an interactive command line based Q And A system.';
@@ -26,8 +27,11 @@ class QAndA extends Command
     private $answerService;
     private $openTriviaDBClient;
 
-    public function __construct(QuestionService $questionService, AnswerService $answerService, OpenTriviaDBClient $openTriviaDBClient)
-    {
+    public function __construct(
+        QuestionService $questionService,
+        AnswerService $answerService,
+        OpenTriviaDBClient $openTriviaDBClient
+    ) {
         parent::__construct();
         $this->questionService = $questionService;
         $this->answerService = $answerService;
@@ -40,30 +44,25 @@ class QAndA extends Command
         $this->locale = self::LOCALES[0];
 
         while ($running) {
-            $option = $this->choice(__('qa.choose_option', [], $this->locale), $this->getInitialOptions(), 0);
+            $option = $this->choice(__('qa.choose_option', [], $this->locale), $this->getInitialOptions(), 1);
 
             switch ($option) {
-                case $this->getInitialOptions()[0]:
+                case $this->getInitialOptions()[0]: // Insert Question Manually
                     $this->addQuestion();
                     break;
-                case $this->getInitialOptions()[1]:
-                    $this->info('Answers');
+                case $this->getInitialOptions()[1]: // Play
+                    $this->playQA();
                     break;
-                case $this->getInitialOptions()[2]:
+                case $this->getInitialOptions()[2]: // Language options
                     $this->locale = $this->choice(__('qa.choose_option', [], $this->locale), self::LOCALES);
                     break;
-                case $this->getInitialOptions()[3]:
+                case $this->getInitialOptions()[3]: // Populate automatically
                     if ($this->locale !== 'en') {
                         $this->error(__('qa.populate_error', [], $this->locale));
                         break;
                     }
-                    $amount = $this->askValid(
-                        __('qa.amount_question', [], $this->locale),
-                        __('qa.amount', [], $this->locale),
-                        ['required', 'numeric', 'min:1', 'max:50'],
-                        $this->locale
-                    );
-                    $this->openTriviaDBClient->fetchQAndA((int)$amount);
+                    $totalQuestions = $this->askAmountQaToInsert();
+                    $this->openTriviaDBClient->fetchQAndA($totalQuestions);
                     $this->info(__('qa.success'));
                     break;
                 default:
@@ -71,52 +70,6 @@ class QAndA extends Command
                     $running = false;
             }
         }
-    }
-
-    private function addQuestion(): void
-    {
-        $keepAsking = true;
-
-        while ($keepAsking) {
-            DB::transaction(function () {
-                $question = $this->validateQuestionInput();
-                $options = $this->validateOptionsQuantityInput();
-                $counter = 1;
-                $this->insertOption($counter, $options, $question);
-            });
-            $keepAsking = $this->confirm(__('qa.keep_adding_new_question', [], $this->locale), true);
-        }
-    }
-
-    private function validateQuestionInput(): Question
-    {
-        $text = $this->askValid(
-            __('qa.new_question', [], $this->locale),
-            __('qa.question', [], $this->locale),
-            ['required', 'min:10'],
-            $this->locale
-        );
-        return $this->questionService->insert($text, $this->locale);
-    }
-
-    private function validateOptionsQuantityInput(): int
-    {
-        return $this->askValid(
-            __('qa.how_many_options', [], $this->locale),
-            __('qa.options', [], $this->locale),
-            ['required', 'numeric', 'between:1,10'],
-            $this->locale
-        );
-    }
-
-    private function validateAnswer(int $counter): string
-    {
-        return $this->askValid(
-            __('qa.enter_option', ['counter' => $counter], $this->locale),
-            __('qa.answer', [], $this->locale),
-            ['required'],
-            $this->locale
-        );
     }
 
     private function getInitialOptions(): array
@@ -130,21 +83,13 @@ class QAndA extends Command
         ];
     }
 
-    private function insertOption(int $counter, int $options, Question $question): void
+    private function askAmountQaToInsert(): int
     {
-        while ($counter <= $options) {
-            $correct = false;
-            $text = $this->validateAnswer($counter);
-            if ($this->confirm(__('qa.confirm_option', ['option' => $text], $this->locale), true)) {
-
-                if (!$question->hasCorrectOption()) {
-                    $correct = $this->confirm(__('qa.correct_option', [], $this->locale), true);
-                }
-
-                $this->answerService->insert($text, $correct, $this->locale, $question);
-
-                $counter++;
-            }
-        }
+        return (int)$this->askValid(
+            __('qa.amount_question', [], $this->locale),
+            __('qa.amount', [], $this->locale),
+            ['required', 'numeric', 'min:1', 'max:50'],
+            $this->locale
+        );
     }
 }

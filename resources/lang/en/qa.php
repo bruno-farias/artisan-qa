@@ -9,8 +9,10 @@ return [
     'exit' => 'Exit',
     'success' => 'Success',
 
+    'id' => 'ID',
     'question' => 'Question',
     'answer' => 'Answer',
+    'option' => 'Option',
     'options' => 'Options',
     'amount' => 'Amount',
 
@@ -23,6 +25,11 @@ return [
 
     'amount_question' => 'How many questions to add? Max: 50',
     'populate_error' => 'Feature only available in English',
+
+    'play_amount_question' => 'How many questions do you wanna try?',
+    'play_amount_id' => 'Which question ID do you want to try?',
+    'play_invalid_id' => 'Invalid ID try one in the table.',
+    'play_select_answer' => 'Select the correct option',
 
     'message_thanks' => 'Thank you for using our Q&A system, come back soon to learn more!',
 ];
