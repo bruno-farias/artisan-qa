@@ -5,36 +5,39 @@ namespace App\Console\Commands\Traits;
 
 
 use App\Models\Question;
+use App\Services\AnswerService;
+use App\Services\QuestionService;
 use Illuminate\Support\Facades\DB;
+use Spatie\Emoji\Emoji;
 
 trait AskQuestion
 {
     use InputValidation;
 
-    public function addQuestion(): void
+    public function addQuestion(QuestionService $questionService, AnswerService $answerService): void
     {
         $keepAsking = true;
 
         while ($keepAsking) {
-            DB::transaction(function () {
-                $question = $this->validateQuestionInput();
+            DB::transaction(function () use ($questionService, $answerService) {
+                $text = $this->validateQuestionInput();
+                $question = $questionService->insert($text, $this->locale);
                 $options = $this->validateOptionsQuantityInput();
                 $counter = 1;
-                $this->insertOption($counter, $options, $question);
+                $this->insertOption($answerService, $counter, $options, $question);
             });
             $keepAsking = $this->confirm(__('qa.keep_adding_new_question', [], $this->locale), true);
         }
     }
 
-    public function validateQuestionInput(): Question
+    public function validateQuestionInput(): string
     {
-        $text = $this->askValid(
+        return $this->askValid(
             __('qa.new_question', [], $this->locale),
             __('qa.question', [], $this->locale),
             ['required', 'min:10'],
             $this->locale
         );
-        return $this->questionService->insert($text, $this->locale);
     }
 
     private function validateOptionsQuantityInput(): int
@@ -47,7 +50,7 @@ trait AskQuestion
         );
     }
 
-    private function insertOption(int $counter, int $options, Question $question): void
+    private function insertOption(AnswerService $answerService, int $counter, int $options, Question $question): void
     {
         while ($counter <= $options) {
             $correct = false;
@@ -58,9 +61,14 @@ trait AskQuestion
                     $correct = $this->confirm(__('qa.correct_option', [], $this->locale), true);
                 }
 
-                $this->answerService->insert($text, $correct, $this->locale, $question);
+                $answerService->insert($text, $correct, $this->locale, $question);
 
                 $counter++;
+                if ($counter > $options && !$question->hasCorrectOption()) {
+                    $this->error(__('qa.add_question_should_have_true', ['emoji' => Emoji::CHARACTER_ANGRY_FACE],
+                        $this->locale));
+                    $counter--;
+                }
             }
         }
     }

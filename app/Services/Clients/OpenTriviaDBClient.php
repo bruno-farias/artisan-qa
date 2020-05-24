@@ -47,15 +47,15 @@ class OpenTriviaDBClient implements TriviaClientInterface
 
     public function fetchQAndA(int $amount = 1): void
     {
-        $response = $this->getClient()->get("{$this->baseUrl}api.php?amount=$amount&token={$this->getToken()}");
+        $response = $this->getClient()->get("{$this->baseUrl}api.php?amount=$amount&token={$this->getToken()}&encode=base64");
         $decodedResponse = json_decode($response->getBody());
         $results = $decodedResponse->results;
 
         foreach ($results as $result) {
-            $question = $this->questionService->insert($result->question, 'en');
-            $this->answerService->insert($result->correct_answer, true, 'en', $question);
+            $question = $this->questionService->insert(base64_decode($result->question), 'en');
+            $this->answerService->insert(base64_decode($result->correct_answer), true, 'en', $question);
             foreach ($result->incorrect_answers as $incorrect_answer) {
-                $this->answerService->insert($incorrect_answer, false, 'en', $question);
+                $this->answerService->insert(base64_decode($incorrect_answer), false, 'en', $question);
             }
         }
     }

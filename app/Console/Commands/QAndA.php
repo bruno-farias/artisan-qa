@@ -48,10 +48,10 @@ class QAndA extends Command
 
             switch ($option) {
                 case $this->getInitialOptions()[0]: // Insert Question Manually
-                    $this->addQuestion();
+                    $this->addQuestion($this->questionService, $this->answerService);
                     break;
                 case $this->getInitialOptions()[1]: // Play
-                    $this->playQA();
+                    $this->playQA($this->questionService, $this->answerService);
                     break;
                 case $this->getInitialOptions()[2]: // Language options
                     $this->locale = $this->choice(__('qa.choose_option', [], $this->locale), self::LOCALES);

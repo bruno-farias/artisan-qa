@@ -26,10 +26,14 @@ return [
     'amount_question' => 'How many questions to add? Max: 50',
     'populate_error' => 'Feature only available in English',
 
+    'add_question_should_have_true' => 'Question should have at least one true answer! Add it now! :emoji',
+
+    'play_welcome' => 'Welcome to Q&A playground',
     'play_amount_question' => 'How many questions do you wanna try?',
     'play_amount_id' => 'Which question ID do you want to try?',
     'play_invalid_id' => 'Invalid ID try one in the table.',
     'play_select_answer' => 'Select the correct option',
+    'play_result' => 'Correct answers: :correct/:total :result% :emoji',
 
     'message_thanks' => 'Thank you for using our Q&A system, come back soon to learn more!',
 ];

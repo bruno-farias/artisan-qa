@@ -9,8 +9,10 @@ return [
     'exit' => 'Sair',
     'success' => 'Sucesso',
 
+    'id' => 'ID',
     'question' => 'Pergunta',
     'answer' => 'Resposta',
+    'option' => 'Opção',
     'options' => 'Opções',
     'amount' => 'Quantidade',
 
@@ -23,6 +25,15 @@ return [
 
     'amount_question' => 'Quantas perguntas a adicionar? Max: 50',
     'populate_error' => 'Funcionalidade disponível em Inglês apenas.',
+
+    'add_question_should_have_true' => 'Perguntas devem ter uma resposta verdadeira! Adicione uma agora!',
+
+    'play_welcome' => 'Bem vindo ao Jogo de Perguntas e respostas',
+    'play_amount_question' => 'Quantas perguntas você quer jogar?',
+    'play_amount_id' => 'Qual pergunta irá responder?',
+    'play_invalid_id' => 'Pergunta inválida, selecione uma opção válida',
+    'play_select_answer' => 'Selecione a opção correta',
+    'play_result' => 'Respostas corretas: :correct/:total :result$ :emoji',
 
     'message_thanks' => 'Obrigado por usar nosso sistema de Perguntas e respostas, Volte sempre para continuar aprendendo!',
 ];
