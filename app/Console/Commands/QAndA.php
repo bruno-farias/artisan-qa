@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 
 use App\Models\Question;
 use App\Services\AnswerService;
+use App\Services\Clients\OpenTriviaDBClient;
 use App\Services\QuestionService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -23,12 +24,14 @@ class QAndA extends Command
     private $locale;
     private $questionService;
     private $answerService;
+    private $openTriviaDBClient;
 
-    public function __construct(QuestionService $questionService, AnswerService $answerService)
+    public function __construct(QuestionService $questionService, AnswerService $answerService, OpenTriviaDBClient $openTriviaDBClient)
     {
         parent::__construct();
         $this->questionService = $questionService;
         $this->answerService = $answerService;
+        $this->openTriviaDBClient = $openTriviaDBClient;
     }
 
     public function handle(): void
@@ -48,6 +51,20 @@ class QAndA extends Command
                     break;
                 case $this->getInitialOptions()[2]:
                     $this->locale = $this->choice(__('qa.choose_option', [], $this->locale), self::LOCALES);
+                    break;
+                case $this->getInitialOptions()[3]:
+                    if ($this->locale !== 'en') {
+                        $this->error(__('qa.populate_error', [], $this->locale));
+                        break;
+                    }
+                    $amount = $this->askValid(
+                        __('qa.amount_question', [], $this->locale),
+                        __('qa.amount', [], $this->locale),
+                        ['required', 'numeric', 'min:1', 'max:50'],
+                        $this->locale
+                    );
+                    $this->openTriviaDBClient->fetchQAndA((int)$amount);
+                    $this->info(__('qa.success'));
                     break;
                 default:
                     $this->info(__('qa.message_thanks', [], $this->locale));
@@ -108,6 +125,7 @@ class QAndA extends Command
             __('qa.add_question', [], $this->locale),
             __('qa.practice', [], $this->locale),
             __('qa.locale', [], $this->locale),
+            __('qa.populate', [], $this->locale),
             __('qa.exit', [], $this->locale),
         ];
     }
