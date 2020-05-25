@@ -1,3 +1,5 @@
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/bruno-farias/artisan-qa/badges/quality-score.png?b=staging)](https://scrutinizer-ci.com/g/bruno-farias/artisan-qa/?branch=master)
+[![Build Status](https://scrutinizer-ci.com/g/bruno-farias/artisan-qa/badges/build.png?b=master)](https://scrutinizer-ci.com/g/bruno-farias/artisan-qa/build-status/master)
 # Q/A app made with Laravel and the Artisan Console
 
 The purpose of the exercise is to see how comfortable you are with a Laravel based interactive console app. We have done a bit of work for you. If you fork this project, run `composer install`, and then run `php artisan qanda:interactive`, the command will be started. In this command, create an event loop and implement the following features:
