@@ -2,8 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Answer;
-use App\Models\Question;
 use Illuminate\Console\Command;
 
 class ResetQA extends Command
