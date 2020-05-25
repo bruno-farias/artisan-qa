@@ -79,7 +79,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | If your SMTP server requires a username for authentication, you should
-    | set it here. This will get used to authenticate with your server on
+    | set it here. This will get used to getToken with your server on
     | connection. You may also set the "password" value below this one.
     |
     */

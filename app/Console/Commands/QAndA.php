@@ -2,43 +2,59 @@
 
 namespace App\Console\Commands;
 
+
+use App\Console\Commands\Traits\InputValidation;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 
 class QAndA extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
+    use InputValidation;
+
     protected $signature = 'qanda:interactive';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Runs an interactive command line based Q And A system.';
+    private $locale;
+    private const LOCALES = [
+        'en',
+        'pt-br'
+    ];
 
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    public function handle(): void
     {
-        parent::__construct();
+        $running = true;
+        $this->locale = self::LOCALES[0];
+
+        while ($running) {
+            $option = $this->choice(__('qa.choose_option', [], $this->locale), $this->getInitialOptions(), 1);
+
+            switch ($option) {
+                case $this->getInitialOptions()[0]: // Insert Question Manually
+                    $this->call('qanda:add', ['locale' => $this->locale]);
+                    break;
+                case $this->getInitialOptions()[1]: // Play
+                    $this->call('qanda:play', ['locale' => $this->locale]);
+                    break;
+                case $this->getInitialOptions()[2]: // Language options
+                    $this->locale = $this->choice(__('qa.choose_option', [], $this->locale), self::LOCALES);
+                    break;
+                case $this->getInitialOptions()[3]: // Populate automatically
+                    $this->call('qanda:populate', ['locale' => $this->locale]);
+                    break;
+                default:
+                    $this->info(__('qa.message_thanks', [], $this->locale));
+                    $running = false;
+            }
+        }
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
-    public function handle()
+    private function getInitialOptions(): array
     {
-        $this->info('Hello world!');
-
-        // Create your interactive Q And A system here. Be sure to make use of all of Laravels functionalities.
+        return [
+            __('qa.add_question', [], $this->locale),
+            __('qa.practice', [], $this->locale),
+            __('qa.locale', [], $this->locale),
+            __('qa.populate', [], $this->locale),
+            __('qa.exit', [], $this->locale),
+        ];
     }
 }
