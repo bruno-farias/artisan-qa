@@ -40,10 +40,18 @@ trait TestHelper
         return \factory(Question::class)->create($params);
     }
 
-    public static function createAnswer(Question $question)
-    {
+    public static function createAnswer(
+        Question $question,
+        bool $correct = false,
+        string $text = null,
+        $locale = 'en'
+    ): Answer {
+        $text = $text ?? TestHelper::text();
         return \factory(Answer::class)->create([
-            'question_id' => $question->id
+            'question_id' => $question->id,
+            'option' => $text,
+            'correct' => $correct,
+            'locale' => $locale
         ]);
     }
 }

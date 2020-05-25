@@ -4,14 +4,12 @@
 namespace Tests\Feature\Commands;
 
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Emoji\Emoji;
 use Tests\TestCase;
 use Tests\TestHelper;
 
 class AddQuestionTest extends TestCase
 {
-    use RefreshDatabase;
     use TestHelper;
 
     public function testAddQuestionSucceeds()
