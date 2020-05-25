@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Console\Commands\Traits\InputValidation;
+use App\Models\Question;
 use App\Services\AnswerService;
 use App\Services\QuestionService;
 use Illuminate\Console\Command;
@@ -36,6 +37,12 @@ class PlayCommand extends Command
         $this->info(__('qa.play_welcome', [], $this->locale));
 
         $totalQuestions = $this->askAmountOfQuestions();
+
+        if (Question::all()->count() < $totalQuestions) {
+            $this->error(__('qa.no_questions_available', [], $this->locale));
+            $this->call('qanda:interactive');
+        }
+
         $questions = $this->remapQuestionKeys($this->questionService->selectBatch($totalQuestions));
 
         while (count($questions) > 0) {

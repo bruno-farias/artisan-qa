@@ -25,6 +25,7 @@ return [
 
     'amount_question' => 'How many questions to add? Max: 50',
     'populate_error' => 'Feature only available in English',
+    'no_questions_available' => 'There is no questions in database, add some manually or get it automatically before play',
 
     'add_question_should_have_true' => 'Question should have at least one true answer! Add it now! :emoji',
 
