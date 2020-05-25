@@ -23,4 +23,16 @@ class QuestionService
     {
         return Question::all(['id', 'question', 'locale'])->random($limit);
     }
+
+    public function insertBatch(array $items, string $locale = 'en'): void
+    {
+        $answerService = new AnswerService();
+        foreach ($items as $item) {
+            $question = $this->insert(base64_decode($item->question), $locale);
+            $answerService->insert(base64_decode($item->correct_answer), true, $locale, $question);
+            foreach ($item->incorrect_answers as $incorrect_answer) {
+                $answerService->insert(base64_decode($incorrect_answer), false, $locale, $question);
+            }
+        }
+    }
 }

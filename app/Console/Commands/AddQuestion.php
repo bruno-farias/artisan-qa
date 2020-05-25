@@ -1,33 +1,49 @@
 <?php
 
+namespace App\Console\Commands;
 
-namespace App\Console\Commands\Traits;
 
-
+use App\Console\Commands\Traits\InputValidation;
 use App\Models\Question;
 use App\Services\AnswerService;
 use App\Services\QuestionService;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Spatie\Emoji\Emoji;
 
-trait AskQuestion
+class AddQuestion extends Command
 {
     use InputValidation;
 
-    public function addQuestion(QuestionService $questionService, AnswerService $answerService): void
-    {
-        $keepAsking = true;
+    protected $signature = 'qanda:add {locale=en}';
+    protected $description = 'Add a new question';
+    private $questionService;
+    private $answerService;
+    public $locale;
 
-        while ($keepAsking) {
-            DB::transaction(function () use ($questionService, $answerService) {
-                $text = $this->validateQuestionInput();
-                $question = $questionService->insert($text, $this->locale);
-                $options = $this->validateOptionsQuantityInput();
-                $counter = 1;
-                $this->insertOption($answerService, $counter, $options, $question);
-            });
-            $keepAsking = $this->confirm(__('qa.keep_adding_new_question', [], $this->locale), true);
+    public function __construct(QuestionService $questionService, AnswerService $answerService)
+    {
+        parent::__construct();
+        $this->questionService = $questionService;
+        $this->answerService = $answerService;
+    }
+
+    public function handle()
+    {
+        $this->locale = $this->argument('locale');
+
+        DB::transaction(function () {
+            $text = $this->validateQuestionInput();
+            $question = $this->questionService->insert($text, $this->locale);
+            $options = $this->validateOptionsQuantityInput();
+            $counter = 1;
+            $this->insertOption($this->answerService, $counter, $options, $question);
+        });
+        $keepAsking = $this->confirm(__('qa.keep_adding_new_question', [], $this->locale), true);
+        if ($keepAsking) {
+            $this->call('qanda:add', ['locale' => $this->locale]);
         }
+
     }
 
     public function validateQuestionInput(): string

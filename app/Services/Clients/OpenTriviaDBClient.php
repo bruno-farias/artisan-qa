@@ -4,8 +4,6 @@
 namespace App\Services\Clients;
 
 
-use App\Services\AnswerService;
-use App\Services\QuestionService;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
 
@@ -13,15 +11,7 @@ class OpenTriviaDBClient implements TriviaClientInterface
 {
     private $baseUrl = 'https://opentdb.com/';
     private $client;
-    private const TOKEN_KEY = 'open_trivia_token';
-    private $questionService;
-    private $answerService;
-
-    public function __construct(QuestionService $questionService, AnswerService $answerService)
-    {
-        $this->questionService = $questionService;
-        $this->answerService = $answerService;
-    }
+    const TOKEN_KEY = 'open_trivia_token';
 
     public function getClient(): Client
     {
@@ -45,19 +35,11 @@ class OpenTriviaDBClient implements TriviaClientInterface
         });
     }
 
-    public function fetchQAndA(int $amount = 1): void
+    public function fetchQAndA(int $amount = 1): array
     {
         $response = $this->getClient()->get("{$this->baseUrl}api.php?amount=$amount&token={$this->getToken()}&encode=base64");
         $decodedResponse = json_decode($response->getBody());
-        $results = $decodedResponse->results;
-
-        foreach ($results as $result) {
-            $question = $this->questionService->insert(base64_decode($result->question), 'en');
-            $this->answerService->insert(base64_decode($result->correct_answer), true, 'en', $question);
-            foreach ($result->incorrect_answers as $incorrect_answer) {
-                $this->answerService->insert(base64_decode($incorrect_answer), false, 'en', $question);
-            }
-        }
+        return $decodedResponse->results;
     }
 
 }

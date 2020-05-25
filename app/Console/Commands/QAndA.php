@@ -3,40 +3,21 @@
 namespace App\Console\Commands;
 
 
-use App\Console\Commands\Traits\AskQuestion;
-use App\Console\Commands\Traits\PlayQA;
-use App\Services\AnswerService;
-use App\Services\Clients\OpenTriviaDBClient;
-use App\Services\QuestionService;
+use App\Console\Commands\Traits\InputValidation;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 
 class QAndA extends Command
 {
-    use AskQuestion;
-    use PlayQA;
+    use InputValidation;
 
     protected $signature = 'qanda:interactive';
     protected $description = 'Runs an interactive command line based Q And A system.';
-
+    private $locale;
     private const LOCALES = [
         'en',
         'pt-br'
     ];
-    private $locale;
-    private $questionService;
-    private $answerService;
-    private $openTriviaDBClient;
-
-    public function __construct(
-        QuestionService $questionService,
-        AnswerService $answerService,
-        OpenTriviaDBClient $openTriviaDBClient
-    ) {
-        parent::__construct();
-        $this->questionService = $questionService;
-        $this->answerService = $answerService;
-        $this->openTriviaDBClient = $openTriviaDBClient;
-    }
 
     public function handle(): void
     {
@@ -48,22 +29,16 @@ class QAndA extends Command
 
             switch ($option) {
                 case $this->getInitialOptions()[0]: // Insert Question Manually
-                    $this->addQuestion($this->questionService, $this->answerService);
+                    $this->call('qanda:add', ['locale' => $this->locale]);
                     break;
                 case $this->getInitialOptions()[1]: // Play
-                    $this->playQA($this->questionService, $this->answerService);
+                    $this->call('qanda:play', ['locale' => $this->locale]);
                     break;
                 case $this->getInitialOptions()[2]: // Language options
                     $this->locale = $this->choice(__('qa.choose_option', [], $this->locale), self::LOCALES);
                     break;
                 case $this->getInitialOptions()[3]: // Populate automatically
-                    if ($this->locale !== 'en') {
-                        $this->error(__('qa.populate_error', [], $this->locale));
-                        break;
-                    }
-                    $totalQuestions = $this->askAmountQaToInsert();
-                    $this->openTriviaDBClient->fetchQAndA($totalQuestions);
-                    $this->info(__('qa.success'));
+                    $this->call('qanda:populate', ['locale' => $this->locale]);
                     break;
                 default:
                     $this->info(__('qa.message_thanks', [], $this->locale));
@@ -81,15 +56,5 @@ class QAndA extends Command
             __('qa.populate', [], $this->locale),
             __('qa.exit', [], $this->locale),
         ];
-    }
-
-    private function askAmountQaToInsert(): int
-    {
-        return (int)$this->askValid(
-            __('qa.amount_question', [], $this->locale),
-            __('qa.amount', [], $this->locale),
-            ['required', 'numeric', 'min:1', 'max:50'],
-            $this->locale
-        );
     }
 }

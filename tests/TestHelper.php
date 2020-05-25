@@ -30,6 +30,11 @@ trait TestHelper
         return Factory::create()->numberBetween($min, $max);
     }
 
+    public static function token(): string
+    {
+        return hash('sha256', TestHelper::text());
+    }
+
     public static function createQuestion(array $params = []): Question
     {
         return \factory(Question::class)->create($params);

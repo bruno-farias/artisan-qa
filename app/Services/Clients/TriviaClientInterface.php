@@ -14,5 +14,5 @@ interface TriviaClientInterface
 
     public function getToken(): string;
 
-    public function fetchQAndA(int $amount = 1): void;
+    public function fetchQAndA(int $amount = 1): array;
 }

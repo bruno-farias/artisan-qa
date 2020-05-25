@@ -1,27 +1,42 @@
 <?php
 
+namespace App\Console\Commands;
 
-namespace App\Console\Commands\Traits;
-
-
+use App\Console\Commands\Traits\InputValidation;
 use App\Services\AnswerService;
 use App\Services\QuestionService;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Spatie\Emoji\Emoji;
 
-trait PlayQA
+class PlayCommand extends Command
 {
-    private $index = 1;
-    private $questionService;
+    use InputValidation;
 
-    public function playQA(QuestionService $questionService, AnswerService $answerService)
+    protected $signature = 'qanda:play {locale=en}';
+    protected $description = 'Play Q&A game';
+    private $questionService;
+    private $answerService;
+    public $locale;
+
+    private $index = 1;
+
+    public function __construct(QuestionService $questionService, AnswerService $answerService)
     {
+        parent::__construct();
+        $this->questionService = $questionService;
+        $this->answerService = $answerService;
+    }
+
+    public function handle()
+    {
+        $this->locale = $this->argument('locale');
         $correctAnswers = 0;
         $this->info(__('qa.play_welcome', [], $this->locale));
 
         $totalQuestions = $this->askAmountOfQuestions();
-        $questions = $this->remapQuestionKeys($questionService->selectBatch($totalQuestions));
+        $questions = $this->remapQuestionKeys($this->questionService->selectBatch($totalQuestions));
 
         while (count($questions) > 0) {
             $this->table([__('qa.option'), __('qa.question')],
@@ -29,7 +44,7 @@ trait PlayQA
 
             $selectedOption = $this->chooseQuestion($questions);
             $question = $questions->firstWhere('selection', '=', $selectedOption);
-            $answers = $this->remapAnswersKeys($answerService->getAnswersByQuestionId($question['id']));
+            $answers = $this->remapAnswersKeys($this->answerService->getAnswersByQuestionId($question['id']));
             $this->table([__('qa.option'), __('qa.answer')], $answers->map->only(['selection', 'option'])->toArray());
             $selectedAnswer = $this->selectAnswer($answers);
 
