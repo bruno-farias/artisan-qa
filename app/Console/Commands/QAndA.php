@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 
 use App\Console\Commands\Traits\InputValidation;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Artisan;
 
 class QAndA extends Command
 {
@@ -25,7 +24,7 @@ class QAndA extends Command
         $this->locale = self::LOCALES[0];
 
         while ($running) {
-            $option = $this->choice(__('qa.choose_option', [], $this->locale), $this->getInitialOptions(), 1);
+            $option = $this->choice(/** @scrutinizer ignore-type */__('qa.choose_option', [], $this->locale), $this->getInitialOptions(), 1);
 
             switch ($option) {
                 case $this->getInitialOptions()[0]: // Insert Question Manually
@@ -41,7 +40,7 @@ class QAndA extends Command
                     $this->call('qanda:populate', ['locale' => $this->locale]);
                     break;
                 default:
-                    $this->info(__('qa.message_thanks', [], $this->locale));
+                    $this->info(/** @scrutinizer ignore-type */__('qa.message_thanks', [], $this->locale));
                     $running = false;
             }
         }
